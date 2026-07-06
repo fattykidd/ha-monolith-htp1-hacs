@@ -11,7 +11,7 @@ jobs:
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}  # Use a Personal Access Token instead
 
       - name: Fetch upstream files
         run: |
