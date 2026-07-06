@@ -19,15 +19,14 @@ jobs:
           rm -rf temp_upstream
           git clone --depth 1 https://github.com/TimoJJ/ha-monolith-htp1.git temp_upstream
           
-          # Create the base HACS custom_components directory
+          # Clean out the old broken structure completely to prevent leftover ghost folders
+          rm -rf custom_components
           mkdir -p custom_components
           
-          # Copy everything from Timo's root directly into custom_components
-          # This will place his 'monoprice_htp1' folder perfectly inside it
-          cp -r temp_upstream/* custom_components/ 2>/dev/null || true
+          # TARGET ONLY THE ACTUAL INTEGRATION FOLDER
+          # This prevents non-code folders like 'assets' from spilling into custom_components
+          cp -r temp_upstream/monoprice_htp1 custom_components/
           
-          # Clean up any residual loose files that aren't the actual integration folder if needed
-          # (This keeps your repo perfectly clean)
           rm -rf temp_upstream
 
       - name: Commit and Push changes
@@ -35,6 +34,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          # Stage the freshly cleaned and correct directory
           git add custom_components/
           
           if git diff-index --quiet HEAD --; then
