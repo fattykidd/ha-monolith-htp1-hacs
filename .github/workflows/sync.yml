@@ -1,0 +1,44 @@
+name: Sync and Restructure Upstream
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs automatically every day at midnight
+  workflow_dispatch: # Allows you to trigger it manually anytime with a button click
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream files
+        run: |
+          mkdir -p temp_upstream
+          # Clone Timo's original repository into a temporary folder
+          git clone https://github.com/TimoJJ/ha-monolith-htp1.git temp_upstream
+          
+          # Create the correct HACS layout folder structure
+          mkdir -p custom_components/monolith_htp1
+          
+          # Copy the core integration files into the compliant folder
+          # (Excluding git files and github workflows from the source)
+          rsync -av --exclude='.git' --exclude='.github' temp_upstream/ custom_components/monolith_htp1/
+          
+          # Clean up temporary folder
+          rm -rf temp_upstream
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add custom_components/
+          
+          # Check if there are actual changes before committing to avoid empty commit errors
+          if git diff-index --quiet HEAD --; then
+            echo "No changes detected from upstream."
+          else
+            git commit -m "Automated sync and restructure from upstream"
+            git push
+          fi
