@@ -35,14 +35,14 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # Stage the freshly cleaned and correct directory
-          git add custom_components/
+          # Force git to track removals, additions, and modifications accurately
+          git add -A custom_components/
           
           if git diff-index --quiet HEAD --; then
             echo "CHANGED=false" >> $GITHUB_ENV
             echo "No changes detected from upstream."
           else
-            git commit -m "Automated sync and restructure from upstream"
+            git commit -m "Automated clean sync and restructure from upstream"
             git push
             echo "CHANGED=true" >> $GITHUB_ENV
           fi
